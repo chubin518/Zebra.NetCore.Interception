@@ -20,13 +20,16 @@ namespace Zebra.NetCore.Interception.Common
             });
         }
 
-        public static Action<object, object> GetValueSetter(this PropertyInfo property)
+        public static Action<object, object> GetValueSetter(this PropertyInfo propertyInfo)
         {
-            var instance = Expression.Parameter(typeof(object), "instance");
-            var value = Expression.Parameter(typeof(object), property.Name);
-            UnaryExpression instanceCast = (!property.DeclaringType.IsValueType) ? Expression.TypeAs(instance, property.DeclaringType) : Expression.Convert(instance, property.DeclaringType);
-            UnaryExpression valueCast = (!property.PropertyType.IsValueType) ? Expression.TypeAs(value, property.PropertyType) : Expression.Convert(value, property.PropertyType);
-            return Expression.Lambda<Action<object, object>>(Expression.Call(instanceCast, property.SetMethod, valueCast), new ParameterExpression[] { instance, value }).Compile();
+            return _setters.GetOrAdd(propertyInfo, property =>
+            {
+                var instance = Expression.Parameter(typeof(object), "instance");
+                var value = Expression.Parameter(typeof(object), property.Name);
+                UnaryExpression instanceCast = (!property.DeclaringType.IsValueType) ? Expression.TypeAs(instance, property.DeclaringType) : Expression.Convert(instance, property.DeclaringType);
+                UnaryExpression valueCast = (!property.PropertyType.IsValueType) ? Expression.TypeAs(value, property.PropertyType) : Expression.Convert(value, property.PropertyType);
+                return Expression.Lambda<Action<object, object>>(Expression.Call(instanceCast, property.SetMethod, valueCast), new ParameterExpression[] { instance, value }).Compile();
+            });
         }
     }
 }

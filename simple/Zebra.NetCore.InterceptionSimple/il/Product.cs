@@ -6,6 +6,9 @@ namespace Zebra.NetCore.InterceptionSimple
 {
     public class Product
     {
+        public Product(ILog log)
+        {
+        }
         public string Name { get; set; }
 
         public string Get(long id)
@@ -38,11 +41,11 @@ namespace Zebra.NetCore.InterceptionSimple
     public class ProductProxy : Product
     {
         private Product _target;
+        [Autowired]
         private InterceptorInvoker _invoker;
 
-        public ProductProxy(InterceptorInvoker invoker) {
-            _invoker = invoker;
-            _target = this;
+        public ProductProxy(ILog log) : base(log)
+        {
         }
 
         public override Task<string> GetAsync(long id)

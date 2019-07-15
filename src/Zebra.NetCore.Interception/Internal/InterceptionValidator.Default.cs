@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Zebra.NetCore.Interception.Common;
 
 namespace Zebra.NetCore.Interception.Internal
 {
@@ -18,7 +19,7 @@ namespace Zebra.NetCore.Interception.Internal
         public bool Validate(ServiceDescriptor descriptor)
         {
             bool needProxy = false;
-            Type serviceType = descriptor.ServiceType, implementationType = GetImplementationType(descriptor);
+            Type serviceType = descriptor.ServiceType, implementationType = descriptor.GetImplementationType();
             if (serviceType.IsInterface && implementationType.IsClass)
             {
                 var mapping = implementationType.GetInterfaceMap(serviceType);
@@ -41,21 +42,6 @@ namespace Zebra.NetCore.Interception.Internal
                 }
             }
             return needProxy;
-        }
-
-        private Type GetImplementationType(ServiceDescriptor descriptor)
-        {
-            if (descriptor.ImplementationInstance != null)
-            {
-                return descriptor.ImplementationInstance.GetType();
-            }
-            else if (descriptor.ImplementationFactory != null)
-            {
-                var typeArguments = descriptor.ImplementationFactory.GetType().GenericTypeArguments;
-
-                return typeArguments[1];
-            }
-            return descriptor.ImplementationType;
         }
     }
 }

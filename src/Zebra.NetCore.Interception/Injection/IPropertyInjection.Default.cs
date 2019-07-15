@@ -21,7 +21,7 @@ namespace Zebra.NetCore.Interception.Injection
                 return;
             foreach (var resolve in _resolvers)
             {
-                resolve.Resolve(_serviceProvider, implementationInstance);
+                resolve.Resolve(implementationInstance, _serviceProvider);
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Reflection;
 using Zebra.NetCore.Interception;
 using Zebra.NetCore.Interception.Common;
 
@@ -11,15 +12,14 @@ namespace Zebra.NetCore.InterceptionSimple
         {
             IServiceCollection services = new ServiceCollection();
             services.AddSingleton<ILog, Log>();
-            services.AddSingleton<IOrder>(p =>
-            {
-                return new Order(p.GetService<ILog>()); ;
-            });
-            //services.AddSingleton<Order, Order>();
+            services.AddSingleton<IOrder, Order>();
+            // 重点BuildInterceptServiceProvider ,创建代理类的容器
             IServiceProvider provider = services.BuildInterceptServiceProvider();
 
+            // 测试
+            IOrder order = provider.GetService<IOrder>();
+            order.CreateOrder(new Request { });
 
-            provider.GetService<IOrder>().CreateOrder(new Request { });
             Console.Read();
         }
     }

@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Zebra.NetCore.Interception\Zebra.NetCore.Interception.csproj" />
+    <ProjectReference Include="..\..\src\Zebra.NetCore.Interception\Zebra.NetCore.Interception.csproj" />
   </ItemGroup>
 
 </Project>

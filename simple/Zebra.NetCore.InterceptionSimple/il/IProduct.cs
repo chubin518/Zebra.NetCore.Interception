@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Zebra.NetCore.Interception;
+using Zebra.NetCore.Interception.Internal;
 
 namespace Zebra.NetCore.InterceptionSimple
 {
@@ -20,7 +21,7 @@ namespace Zebra.NetCore.InterceptionSimple
         int Update(long id, ref int age, out string name, out Request request);
     }
 
-    public class IProductProxy : IProduct
+    public class IProductProxy : IProduct, IProxy
     {
         private IProduct _target;
         private InterceptorInvoker _invoker;
@@ -116,6 +117,22 @@ namespace Zebra.NetCore.InterceptionSimple
             name = (string)invocationContext.Arguments[2];
             request = (Request)invocationContext.Arguments[2];
             return result;
+        }
+
+        public void SetProxy(object target)
+        {
+            this._target = target as IProduct;
+        }
+
+        public void SetInvoker(InterceptorInvoker invoker)
+        {
+            this._invoker = invoker;
+        }
+
+        public void SetProxy(object target, InterceptorInvoker invoker)
+        {
+            this._target = target as IProduct;
+            this._invoker = invoker;
         }
     }
 }

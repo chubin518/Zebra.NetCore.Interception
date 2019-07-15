@@ -30,11 +30,11 @@ namespace Zebra.NetCore.Interception.Common
             Type resultType = null;
             if (service.IsInterface)
             {
-                resultType= CreateInterfaceProxy(service);
+                resultType = CreateInterfaceProxy(service);
             }
             else
             {
-                resultType= CreateClassProxy(service);
+                resultType = CreateClassProxy(service);
             }
             Save();
             return resultType;
@@ -200,29 +200,32 @@ namespace Zebra.NetCore.Interception.Common
 
                 foreach (var constructor in constructors)
                 {
-                    var parameterTypes = constructor.GetParameters().Select(p => p.ParameterType).ToArray();
-                    var parameters = new Type[] { typeof(InterceptorInvoker) }.Concat(parameterTypes).ToArray();
+                    var parameters = constructor.GetParameters().Select(p => p.ParameterType).ToArray();
+                    //var parameters = new Type[] { typeof(InterceptorInvoker) }.Concat(parameters).ToArray();
                     var constructorBuilder = _builder.DefineConstructor(constructor.Attributes, constructor.CallingConvention, parameters);
 
                     var ilGen = constructorBuilder.GetILGenerator();
 
                     //Call object's constructor.
                     ilGen.Emit(OpCodes.Ldarg_0);
-                    for (int i = 2; i <= parameters.Length; i++)
+                    for (int i = 1; i <= parameters.Length; i++)
                     {
                         ilGen.Emit(OpCodes.Ldarg_S, i);
                     }
                     ilGen.Emit(OpCodes.Call, constructor);
 
-                    //Set _invoker field
-                    ilGen.Emit(OpCodes.Ldarg_0);
-                    ilGen.Emit(OpCodes.Ldarg_1);
-                    ilGen.Emit(OpCodes.Stfld, _invokerField);
-
                     //Set _target filed
                     ilGen.Emit(OpCodes.Ldarg_0);
                     ilGen.Emit(OpCodes.Ldarg_0);
                     ilGen.Emit(OpCodes.Stfld, _targetField);
+          
+
+                    ////Set _invoker field
+                    //ilGen.Emit(OpCodes.Ldarg_0);
+                    //ilGen.Emit(OpCodes.Ldarg_1);
+                    //ilGen.Emit(OpCodes.Stfld, _invokerField);
+
+                    _invokerField.SetCustomAttribute(new CustomAttributeBuilder(typeof(AutowiredAttribute).GetTypeInfo().DeclaredConstructors.First(), Array.Empty<object>()));
                     ilGen.Emit(OpCodes.Ret);
                 }
             }
@@ -255,11 +258,11 @@ namespace Zebra.NetCore.Interception.Common
                 if (_targetType.IsGenericTypeDefinition)
                 {
                     ilGen.Emit(OpCodes.Ldtoken, method.DeclaringType);
-                    ilGen.Emit(OpCodes.Call, ReflectionUtils.GetMethod<MethodBase>(_ => MethodBase.GetMethodFromHandle(default(RuntimeMethodHandle), default(RuntimeTypeHandle))));
+                    ilGen.Emit(OpCodes.Call, ReflectionUtilities.GetMethod<MethodBase>(_ => MethodBase.GetMethodFromHandle(default(RuntimeMethodHandle), default(RuntimeTypeHandle))));
                 }
                 else
                 {
-                    ilGen.Emit(OpCodes.Call, ReflectionUtils.GetMethod<MethodBase>(_ => MethodBase.GetMethodFromHandle(default(RuntimeMethodHandle))));
+                    ilGen.Emit(OpCodes.Call, ReflectionUtilities.GetMethod<MethodBase>(_ => MethodBase.GetMethodFromHandle(default(RuntimeMethodHandle))));
                 }
                 ilGen.Emit(OpCodes.Stloc_0);
 
@@ -269,6 +272,7 @@ namespace Zebra.NetCore.Interception.Common
                 // 	});
 
                 ilGen.Emit(OpCodes.Ldarg_0);
+
                 //构造函数第一个参数 proxy
                 ilGen.Emit(OpCodes.Ldarg_0);
                 //构造函数第二个参数 target
@@ -296,7 +300,7 @@ namespace Zebra.NetCore.Interception.Common
                     ilGen.Emit(OpCodes.Stelem_Ref);
                 }
 
-                ilGen.Emit(OpCodes.Newobj, ReflectionUtils.GetConstructor(() => new InvocationContext(default(object), default(object), default(MethodBase), default(object[]))));
+                ilGen.Emit(OpCodes.Newobj, ReflectionUtilities.GetConstructor(() => new InvocationContext(default(object), default(object), default(MethodBase), default(object[]))));
                 ilGen.Emit(OpCodes.Stloc_1);
 
                 // _invoker.Invoke<object>(Get, invocationContext);
@@ -317,20 +321,20 @@ namespace Zebra.NetCore.Interception.Common
 
                 if (method.IsVoid())
                 {
-                    invokerMethod = ReflectionUtils.GetMethod<InterceptorInvoker>(nameof(InterceptorInvoker.Invoke)).MakeGenericMethod(typeof(object));
+                    invokerMethod = ReflectionUtilities.GetMethod<InterceptorInvoker>(nameof(InterceptorInvoker.Invoke)).MakeGenericMethod(typeof(object));
                 }
                 else if (method.IsTask())
                 {
-                    invokerMethod = ReflectionUtils.GetMethod<InterceptorInvoker>(nameof(InterceptorInvoker.InvokeAsync)).MakeGenericMethod(typeof(object));
+                    invokerMethod = ReflectionUtilities.GetMethod<InterceptorInvoker>(nameof(InterceptorInvoker.InvokeAsync)).MakeGenericMethod(typeof(object));
                 }
                 else if (method.IsTaskWithResult())
                 {
                     var returnType = method.ReturnType.GetTypeInfo().GetGenericArguments().First();
-                    invokerMethod = ReflectionUtils.GetMethod<InterceptorInvoker>(nameof(InterceptorInvoker.InvokeAsync)).MakeGenericMethod(returnType);
+                    invokerMethod = ReflectionUtilities.GetMethod<InterceptorInvoker>(nameof(InterceptorInvoker.InvokeAsync)).MakeGenericMethod(returnType);
                 }
                 else
                 {
-                    invokerMethod = ReflectionUtils.GetMethod<InterceptorInvoker>(nameof(InterceptorInvoker.Invoke)).MakeGenericMethod(method.ReturnType);
+                    invokerMethod = ReflectionUtilities.GetMethod<InterceptorInvoker>(nameof(InterceptorInvoker.Invoke)).MakeGenericMethod(method.ReturnType);
                 }
                 ilGen.Emit(OpCodes.Callvirt, invokerMethod);
 
@@ -355,7 +359,7 @@ namespace Zebra.NetCore.Interception.Common
 
                         ilGen.Emit(OpCodes.Ldarg, index + 1);
                         ilGen.Emit(OpCodes.Ldloc, 1);
-                        ilGen.Emit(OpCodes.Callvirt, ReflectionUtils.GetProperty<InvocationContext, object[]>(context => context.Arguments).GetMethod);
+                        ilGen.Emit(OpCodes.Callvirt, ReflectionUtilities.GetProperty<InvocationContext, object[]>(context => context.Arguments).GetMethod);
                         ilGen.Emit(OpCodes.Ldc_I4, index);
                         ilGen.Emit(OpCodes.Ldelem_Ref);
                         if (parameterType.IsValueType || parameterType.IsGenericParameter)
@@ -403,7 +407,7 @@ namespace Zebra.NetCore.Interception.Common
                 ilGen.Emit(OpCodes.Nop);
                 // object[] arguments = context.Arguments;
                 ilGen.Emit(OpCodes.Ldarg_1);
-                ilGen.Emit(OpCodes.Callvirt, ReflectionUtils.GetProperty<InvocationContext, object[]>(context => context.Arguments).GetMethod);
+                ilGen.Emit(OpCodes.Callvirt, ReflectionUtilities.GetProperty<InvocationContext, object[]>(context => context.Arguments).GetMethod);
                 ilGen.Emit(OpCodes.Stloc_0);
 
                 // long arg0 = (long)arguments[0];
@@ -462,7 +466,7 @@ namespace Zebra.NetCore.Interception.Common
                     {
                         ilGen.Emit(OpCodes.Box, method.ReturnType);
                     }
-                    ilGen.Emit(OpCodes.Callvirt, ReflectionUtils.GetProperty<InvocationContext, object>(context => context.Return).SetMethod);
+                    ilGen.Emit(OpCodes.Callvirt, ReflectionUtilities.GetProperty<InvocationContext, object>(context => context.Return).SetMethod);
                 }
                 else
                 {
@@ -489,7 +493,7 @@ namespace Zebra.NetCore.Interception.Common
                 }
 
                 //return Task.CompletedTask
-                ilGen.Emit(OpCodes.Call, ReflectionUtils.GetProperty<Task, Task>(_ => Task.CompletedTask).GetMethod);
+                ilGen.Emit(OpCodes.Call, ReflectionUtilities.GetProperty<Task, Task>(_ => Task.CompletedTask).GetMethod);
                 ilGen.Emit(OpCodes.Ret);
 
                 return methodBuilder;

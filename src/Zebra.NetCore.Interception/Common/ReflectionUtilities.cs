@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Zebra.NetCore.Interception.Common
 {
-    public class ReflectionUtils
+    public class ReflectionUtilities
     {
         public static MethodInfo GetMethod<TTarget>(Expression<Action<TTarget>> expression)
         {
