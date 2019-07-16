@@ -1,14 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="..\..\build\common.props" />
   <PropertyGroup>
     <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
-    <Version>1.0.0-beta2</Version>
     <Description>基于Microsoft.Extensions.DependencyInjection的拓展程序,提供了属性（字段）注入，AOP拦截的解决方案</Description>
-    <PackageIconUrl>http://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
-    <PackageProjectUrl></PackageProjectUrl>
-    <PackageTags>core .net aop di</PackageTags>
-    <PackageReleaseNotes>移除DispatchProxy，基于IL Emit 自定义代理类</PackageReleaseNotes>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <AssemblyName>Zebra.NetCore.Interception</AssemblyName>
+    <AssemblyTitle>Zebra.NetCore.Interception</AssemblyTitle>
+    <PackageId>Zebra.NetCore.Interception</PackageId>
+    <PackageTags>DotNet;DI;AOP;IOC;NetCore</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

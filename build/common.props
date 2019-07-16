@@ -1,0 +1,18 @@
+<Project>
+  <Import Project="version.props" />
+  <PropertyGroup>
+    <Authors>chubin518</Authors>
+    <Product>Zebra.NetCore.Interception</Product>
+    <owners>chubin518</owners>
+    <PackageIconUrl>http://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/chubin518/Zebra.NetCore.Interception</PackageProjectUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/chubin518/Zebra.NetCore.Interception</RepositoryUrl>
+    <GenerateAssemblyConfigurationAttribute>True</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>True</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>True</GenerateAssemblyProductAttribute>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+</Project>
