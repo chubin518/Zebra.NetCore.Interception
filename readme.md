@@ -4,7 +4,7 @@ Zebra.NetCore.Interception是基于Microsoft.Extensions.DependencyInjection的�
 
 提供了通过类的属性（字段）进行注入的功能
 
-使用IL Emit技术实现了动态代理功能，并在此基础上提供了轻量级的AOP（面向切面编程解决方案）
+使用IL Emit技术实现了动态代理功能，并在此基础上提供了轻量级的AOP（面向切面编程解决方案）解决方案
 
 
 
